@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../../api";
 import MarketplaceDetailsModal from "../../components/MarketplaceDetailsModal";
+import useWebSocket from "../../hooks/useWebSocket";
 
 export default function Marketplace() {
   const [crops, setCrops] = useState([]);
@@ -11,6 +12,10 @@ export default function Marketplace() {
   useEffect(() => {
     loadMarketplace();
   }, []);
+
+  useWebSocket("/ws/marketplace", () => {
+    loadMarketplace();
+  });
 
   async function loadMarketplace() {
     try {
@@ -131,7 +136,7 @@ export default function Marketplace() {
           </div>
         )}
       </div>
-      <MarketplaceDetailsModal crop={selectedCrop} onClose={() => setSelectedCrop(null)} />
+      <MarketplaceDetailsModal crop={selectedCrop} onClose={() => setSelectedCrop(null)} onOrderPlaced={loadMarketplace} />
     </div>
   );
 }

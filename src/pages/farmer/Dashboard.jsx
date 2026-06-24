@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 export default function Dashboard() {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
+  const [highDemand, setHighDemand] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,8 +14,12 @@ export default function Dashboard() {
 
   async function loadAssignments() {
     try {
-      const response = await api.get("/assignments/me");
-      setAssignments(response.data || []);
+      const [assignmentsResponse, demandResponse] = await Promise.all([
+        api.get("/assignments/me"),
+        api.get("/demand/insights/high-demand"),
+      ]);
+      setAssignments(assignmentsResponse.data || []);
+      setHighDemand(demandResponse.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -131,6 +136,20 @@ export default function Dashboard() {
         </div>
 
         <section className="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6"><h2 className="text-xl font-semibold">Recent activity</h2><div className="mt-4 space-y-3">{assignments.slice(0, 3).map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-900/70 p-3"><span>🌱 {item.crop_name || "Crop assignment"}</span><span className="text-sm capitalize text-slate-400">{item.status || "pending"}</span></div>)}{!assignments.length && <p className="text-slate-400">New assignments and crop updates will appear here.</p>}</div></section>
+
+        <section className="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <h2 className="text-xl font-semibold">High Demand Crops</h2>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {highDemand.slice(0, 3).map((item) => (
+              <div key={`${item.crop_name}-${item.status}`} className="rounded-xl bg-slate-900/70 p-4">
+                <p className="font-medium">{item.crop_name}</p>
+                <p className="mt-1 text-2xl font-bold text-orange-300">{item.quantity_kg} kg</p>
+                <p className="mt-1 text-sm capitalize text-slate-400">{item.status}</p>
+              </div>
+            ))}
+            {!highDemand.length && <p className="text-slate-400">Demand insights will appear after shops create requests.</p>}
+          </div>
+        </section>
 
         {/* Empty State */}
         {assignments.length === 0 ? (

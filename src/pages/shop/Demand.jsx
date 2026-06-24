@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
+import useWebSocket from "../../hooks/useWebSocket";
 
 export default function Demand() {
   const [crops, setCrops] = useState([]);
   const [demands, setDemands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const [form, setForm] = useState({
     crop_id: "",
@@ -16,9 +19,14 @@ export default function Demand() {
     loadData();
   }, []);
 
+  useWebSocket("/ws/supply-demand", () => {
+    loadData();
+  });
+
   async function loadData() {
     try {
       setLoading(true);
+      setError("");
 
       const [cropsRes, demandsRes] = await Promise.all([
         api.get("/crops/"),
@@ -28,7 +36,7 @@ export default function Demand() {
       setCrops(cropsRes.data || []);
       setDemands(demandsRes.data || []);
     } catch (err) {
-      console.error(err);
+      setError(err.response?.data?.detail || "Failed to load demand requests.");
     } finally {
       setLoading(false);
     }
@@ -52,6 +60,7 @@ export default function Demand() {
         quantity_kg: Number(form.quantity_kg),
         required_by: form.required_by,
       });
+      setMessage("Demand request created.");
 
       setForm({
         crop_id: "",
@@ -61,7 +70,7 @@ export default function Demand() {
 
       loadData();
     } catch (err) {
-      console.error(err);
+      setMessage(err.response?.data?.detail || "Demand request failed.");
     }
   }
 
@@ -69,6 +78,9 @@ export default function Demand() {
     switch (status?.toLowerCase()) {
       case "approved":
         return "bg-green-500/20 text-green-400";
+
+      case "planned":
+        return "bg-blue-500/20 text-blue-400";
 
       case "rejected":
         return "bg-red-500/20 text-red-400";
@@ -91,6 +103,20 @@ export default function Demand() {
             Submit crop demand requests and track their status.
           </p>
         </div>
+
+        {/* Demand Form */}
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-200">
+            {error}
+            <button onClick={loadData} className="ml-4 rounded-xl bg-red-500 px-3 py-1 text-sm text-white">Retry</button>
+          </div>
+        )}
+
+        {message && (
+          <div className="mb-6 rounded-2xl border border-white/10 bg-white/5 p-4">
+            {message}
+          </div>
+        )}
 
         {/* Demand Form */}
         <div className="mb-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">

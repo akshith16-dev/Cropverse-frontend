@@ -1,5 +1,4 @@
 import {
-  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
@@ -8,6 +7,7 @@ import {
   Legend,
   CartesianGrid,
 } from "recharts";
+import { useEffect, useRef, useState } from "react";
 
 const data = [
   {
@@ -33,8 +33,26 @@ const data = [
 ];
 
 export default function SupplyDemandChart() {
+  const chartFrameRef = useRef(null);
+  const [chartWidth, setChartWidth] = useState(0);
+
+  useEffect(() => {
+    const element = chartFrameRef.current;
+    if (!element) return undefined;
+
+    const updateWidth = () => {
+      setChartWidth(Math.max(320, Math.floor(element.clientWidth)));
+    };
+
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
+    <div className="min-w-0 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6">
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-xl font-bold">
@@ -47,9 +65,9 @@ export default function SupplyDemandChart() {
         </div>
       </div>
 
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
+      <div ref={chartFrameRef} className="h-80 min-h-64 min-w-0 overflow-x-auto">
+        {chartWidth > 0 && (
+          <BarChart data={data} width={chartWidth} height={300}>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="rgba(255,255,255,0.08)"
@@ -96,7 +114,7 @@ export default function SupplyDemandChart() {
               radius={[8, 8, 0, 0]}
             />
           </BarChart>
-        </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

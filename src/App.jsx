@@ -1,25 +1,33 @@
+import { lazy, Suspense } from "react";
 import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 
-import Login from "./pages/auth/Login.jsx";
-import Register from "./pages/auth/Register.jsx";
 import Layout from "./components/Layout.jsx";
-import Profile from "./pages/common/Profile.jsx";
 
-import AdminDashboard from "./pages/admin/Dashboard.jsx";
-import Shops from "./pages/admin/Shops.jsx";
-import Assign from "./pages/admin/Assign.jsx";
-import Prices from "./pages/admin/Prices.jsx";
+const Login = lazy(() => import("./pages/auth/Login.jsx"));
+const Register = lazy(() => import("./pages/auth/Register.jsx"));
+const Profile = lazy(() => import("./pages/common/Profile.jsx"));
 
-import FarmerDashboard from "./pages/farmer/Dashboard.jsx";
-import Crops from "./pages/farmer/Crops.jsx";
-import Chatbot from "./pages/farmer/Chatbot.jsx";
+const AdminDashboard = lazy(() => import("./pages/admin/Dashboard.jsx"));
+const AdminFarmers = lazy(() => import("./pages/admin/Farmers.jsx"));
+const Shops = lazy(() => import("./pages/admin/Shops.jsx"));
+const AdminCrops = lazy(() => import("./pages/admin/Crops.jsx"));
+const Assign = lazy(() => import("./pages/admin/Assign.jsx"));
+const DemandManagement = lazy(() => import("./pages/admin/DemandManagement.jsx"));
+const Prices = lazy(() => import("./pages/admin/Prices.jsx"));
+const Analytics = lazy(() => import("./pages/admin/Analytics.jsx"));
 
-import ShopDashboard from "./pages/shop/Dashboard.jsx";
-import Marketplace from "./pages/shop/Marketplace.jsx";
-import Demand from "./pages/shop/Demand.jsx";
-import Orders from "./pages/shop/Orders.jsx";
+const FarmerDashboard = lazy(() => import("./pages/farmer/Dashboard.jsx"));
+const Crops = lazy(() => import("./pages/farmer/Crops.jsx"));
+const Chatbot = lazy(() => import("./pages/farmer/Chatbot.jsx"));
+const AdvancedAdvisor = lazy(() => import("./pages/farmer/AdvancedAdvisor.jsx"));
+const FarmerOrders = lazy(() => import("./pages/farmer/Orders.jsx"));
 
-import Notifications from "./pages/common/Notifications.jsx";
+const ShopDashboard = lazy(() => import("./pages/shop/Dashboard.jsx"));
+const Marketplace = lazy(() => import("./pages/shop/Marketplace.jsx"));
+const Demand = lazy(() => import("./pages/shop/Demand.jsx"));
+const Orders = lazy(() => import("./pages/shop/Orders.jsx"));
+
+const Notifications = lazy(() => import("./pages/common/Notifications.jsx"));
 
 const dashboardRoutes = { admin: "/admin/dashboard", farmer: "/farmer/dashboard", shop: "/shop/dashboard" };
 
@@ -32,26 +40,33 @@ function ProtectedLayout({ roles }) {
 
 function App() {
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={<Navigate to="/login" replace />}
-      />
+    <Suspense fallback={<div className="min-h-screen bg-slate-950 p-6 text-slate-100">Loading Cropverse...</div>}>
+      <Routes>
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
 
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
       <Route element={<ProtectedLayout roles={["admin"]} />}>
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/farmers" element={<AdminFarmers />} />
         <Route path="/admin/shops" element={<Shops />} />
+        <Route path="/admin/crops" element={<AdminCrops />} />
         <Route path="/admin/assign" element={<Assign />} />
+        <Route path="/admin/demand" element={<DemandManagement />} />
         <Route path="/admin/prices" element={<Prices />} />
+        <Route path="/admin/analytics" element={<Analytics />} />
       </Route>
 
       {/* Farmer */}
       <Route element={<ProtectedLayout roles={["farmer"]} />}>
         <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
         <Route path="/farmer/crops" element={<Crops />} />
+        <Route path="/farmer/advisor" element={<AdvancedAdvisor />} />
+        <Route path="/farmer/orders" element={<FarmerOrders />} />
       </Route>
 
       {/* Shop */}
@@ -70,11 +85,12 @@ function App() {
         <Route path="/farmer/chatbot" element={<Navigate to="/chatbot" replace />} />
       </Route>
 
-      <Route
-        path="*"
-        element={<Navigate to="/login" replace />}
-      />
-    </Routes>
+        <Route
+          path="*"
+          element={<Navigate to="/login" replace />}
+        />
+      </Routes>
+    </Suspense>
   );
 }
 

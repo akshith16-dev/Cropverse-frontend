@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import SupplyDemandChart from "../../components/dashboard/SupplyDemandChart";
 import ActivityFeed from "../../components/dashboard/ActivityFeed";
 import StatCard from "../../components/dashboard/StatCard";
+import SupplyDemandMeter from "../../components/SupplyDemandMeter";
 
 import api from "../../api";
 
@@ -75,8 +76,8 @@ export default function Dashboard() {
   return (
     <>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-5xl font-bold">
+      <div className="mb-8 min-w-0">
+        <h1 className="break-words text-4xl font-bold leading-tight sm:text-5xl">
           Admin Control Center 🌾
         </h1>
 
@@ -98,7 +99,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Farmers"
           value={stats.farmers}
@@ -133,7 +134,7 @@ export default function Dashboard() {
       </div>
 
       {/* Insights */}
-      <div className="grid md:grid-cols-3 gap-6 mt-8">
+      <div className="grid min-w-0 gap-6 mt-8 md:grid-cols-3">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
           <div className="text-3xl mb-3">🌾</div>
 
@@ -172,10 +173,11 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+      <div className="mt-6"><SupplyDemandMeter /></div>
 
       {/* Analytics */}
-      <div className="grid md:grid-cols-3 gap-6 mt-8">
-        <div className="md:col-span-2">
+      <div className="grid min-w-0 gap-6 mt-8 md:grid-cols-3">
+        <div className="min-w-0 md:col-span-2">
           <SupplyDemandChart />
         </div>
 

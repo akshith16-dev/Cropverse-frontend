@@ -9,6 +9,14 @@ const dashboardRoutes = {
 };
 
 function getLoginErrorMessage(err) {
+  if (err.code === "ECONNABORTED") {
+    return "Login request timed out. Check that the backend server is running and try again.";
+  }
+
+  if (!err.response) {
+    return "Cannot reach the backend server. Start FastAPI on port 8000 or set VITE_API_URL.";
+  }
+
   const detail = err.response?.data?.detail;
 
   if (typeof detail === "string") {
@@ -65,7 +73,7 @@ export default function Login() {
 
     try {
       const credentials = new URLSearchParams({
-        username: form.email,
+        username: form.email.trim(),
         password: form.password,
       });
 
@@ -84,17 +92,19 @@ export default function Login() {
         access_token: token,
         role,
         user_name,
+        user_id,
       } = response.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      if (user_id) localStorage.setItem("user_id", user_id);
 
       // NEW
       localStorage.setItem(
         "user_name",
         user_name || "User"
       );
-      localStorage.setItem("email", form.email);
+      localStorage.setItem("email", form.email.trim());
 
       navigate(
         dashboardRoutes[role] || "/login",

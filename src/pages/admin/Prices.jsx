@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import api from "../../api";
+import useWebSocket from "../../hooks/useWebSocket";
 
 const emptyForm = {
   crop_id: "",
@@ -26,6 +27,10 @@ export default function Prices() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useWebSocket("/ws/prices", () => {
+    loadData();
+  });
 
   async function loadData() {
     try {

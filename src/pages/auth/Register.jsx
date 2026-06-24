@@ -9,9 +9,11 @@ const dashboardRoutes = {
 };
 
 function errorMessage(error) {
-  const detail = error.response?.data?.detail;
+  const detail = error.response?.data?.detail ?? error.response?.data?.details;
+  const message = error.response?.data?.message;
 
   if (typeof detail === "string") return detail;
+  if (typeof message === "string" && message !== "Validation failed") return message;
 
   if (Array.isArray(detail)) {
     return detail
@@ -20,7 +22,7 @@ function errorMessage(error) {
       .join(" ");
   }
 
-  return detail?.message || "Registration failed.";
+  return detail?.message || message || "Registration failed.";
 }
 
 export default function Register() {
@@ -98,6 +100,7 @@ export default function Register() {
         role: responseRole,
         user_name,
         name,
+        user_id,
       } = response.data;
 
       localStorage.setItem(
@@ -109,6 +112,7 @@ export default function Register() {
         "role",
         responseRole
       );
+      if (user_id) localStorage.setItem("user_id", user_id);
 
       localStorage.setItem(
         "user_name",

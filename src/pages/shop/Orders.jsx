@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
+import useWebSocket from "../../hooks/useWebSocket";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -8,6 +9,10 @@ export default function Orders() {
   useEffect(() => {
     loadOrders();
   }, []);
+
+  useWebSocket("/ws/marketplace", () => {
+    loadOrders();
+  });
 
   async function loadOrders() {
     try {
@@ -35,6 +40,9 @@ export default function Orders() {
         return "bg-purple-500/20 text-purple-400";
 
       case "cancelled":
+        return "bg-red-500/20 text-red-400";
+
+      case "rejected":
         return "bg-red-500/20 text-red-400";
 
       default:
@@ -164,6 +172,8 @@ export default function Orders() {
                           ? "w-3/4 bg-purple-500"
                           : order.status === "delivered"
                           ? "w-full bg-green-500"
+                          : order.status === "rejected"
+                          ? "w-full bg-red-500"
                           : "w-0"
                       }`}
                     />

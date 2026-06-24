@@ -9,6 +9,18 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api";
 import SearchModal from "./SearchModal";
+import useWebSocket from "../hooks/useWebSocket";
+
+function getStoredUserId() {
+  const stored = localStorage.getItem("user_id");
+  if (stored) return stored;
+  try {
+    const payload = localStorage.getItem("token")?.split(".")[1];
+    return payload ? JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))).sub : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -21,6 +33,8 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const token = localStorage.getItem("token");
+  const userId = getStoredUserId();
 
   useEffect(() => {
     let active = true;
@@ -30,9 +44,16 @@ export default function Navbar() {
     return () => { active = false; };
   }, []);
 
+  useWebSocket(userId && token ? `/ws/notifications/${userId}?token=${encodeURIComponent(token)}` : null, (event) => {
+    if (event.notification && !event.notification.is_read) {
+      setUnreadCount((count) => count + 1);
+    }
+  });
+
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("user_id");
     localStorage.removeItem("user_name");
     localStorage.removeItem("email");
 

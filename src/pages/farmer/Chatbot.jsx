@@ -6,20 +6,23 @@ function Chatbot() {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [lastFailedMessage, setLastFailedMessage] = useState("");
 
-  async function sendMessage() {
-    if (!message.trim()) return;
+  async function sendMessage(overrideMessage) {
+    const outgoingMessage = (overrideMessage ?? message).trim();
+    if (!outgoingMessage) return;
 
     const userMessage = {
       type: "user",
-      text: message,
+      text: outgoingMessage,
     };
 
     setMessages((prev) => [...prev, userMessage]);
 
-    const currentMessage = message;
+    const currentMessage = outgoingMessage;
     setMessage("");
     setLoading(true);
+    setLastFailedMessage("");
 
     try {
       const res = await api.post("/chatbot/chat", {
@@ -35,12 +38,13 @@ function Chatbot() {
       ]);
     } catch (err) {
       console.error(err);
+      setLastFailedMessage(currentMessage);
 
       setMessages((prev) => [
         ...prev,
         {
           type: "ai",
-          text: "❌ Failed to get AI response.",
+          text: "I could not reach Cropverse AI just now. Please try again in a few moments.",
         },
       ]);
     } finally {
@@ -121,7 +125,7 @@ function Chatbot() {
               {loading && (
                 <div className="flex justify-start">
                   <div className="rounded-2xl bg-slate-800 px-4 py-3 text-slate-300">
-                    🌾 AI is thinking...
+                    AI is thinking...
                   </div>
                 </div>
               )}
@@ -140,13 +144,22 @@ function Chatbot() {
           />
 
           <button
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={loading}
             className="rounded-2xl bg-green-600 px-6 py-3 font-medium hover:bg-green-500 disabled:opacity-50"
           >
-            Send
+            {loading ? "Sending..." : "Send"}
           </button>
         </div>
+        {lastFailedMessage && (
+          <button
+            onClick={() => sendMessage(lastFailedMessage)}
+            disabled={loading}
+            className="mt-3 rounded-xl border border-emerald-500/30 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
+          >
+            Retry last question
+          </button>
+        )}
       </div>
     </div>
   );

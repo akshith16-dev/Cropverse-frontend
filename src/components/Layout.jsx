@@ -2,6 +2,7 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import PriceTicker from "./PriceTicker";
 
 export default function Layout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -17,6 +18,7 @@ export default function Layout({ children }) {
 
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl">
+            <div className="mb-5"><PriceTicker /></div>
             {children}
           </div>
         </main>

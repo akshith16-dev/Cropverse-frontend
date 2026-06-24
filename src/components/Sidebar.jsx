@@ -20,9 +20,19 @@ const roleMenus = {
       path: "/admin/dashboard",
     },
     {
+      icon: Sprout,
+      label: "Farmers",
+      path: "/admin/farmers",
+    },
+    {
       icon: Store,
       label: "Shops",
       path: "/admin/shops",
+    },
+    {
+      icon: Sprout,
+      label: "Crops",
+      path: "/admin/crops",
     },
     {
       icon: ClipboardList,
@@ -30,9 +40,24 @@ const roleMenus = {
       path: "/admin/assign",
     },
     {
+      icon: Package,
+      label: "Demand",
+      path: "/admin/demand",
+    },
+    {
       icon: BarChart3,
       label: "Prices",
       path: "/admin/prices",
+    },
+    {
+      icon: BarChart3,
+      label: "Analytics",
+      path: "/admin/analytics",
+    },
+    {
+      icon: Bell,
+      label: "Notifications",
+      path: "/notifications",
     },
     {
       icon: Bot,
@@ -54,8 +79,18 @@ const roleMenus = {
     },
     {
       icon: Bot,
-      label: "Cropverse AI",
+      label: "Advisor",
+      path: "/farmer/advisor",
+    },
+    {
+      icon: Bot,
+      label: "Chatbot",
       path: "/chatbot",
+    },
+    {
+      icon: ShoppingCart,
+      label: "Orders",
+      path: "/farmer/orders",
     },
     {
       icon: Bell,

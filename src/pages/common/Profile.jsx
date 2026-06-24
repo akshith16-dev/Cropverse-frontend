@@ -11,6 +11,7 @@ import api from "../../api";
 
 const fallbackProfile = () => ({ name: localStorage.getItem("user_name") || "User", email: localStorage.getItem("email") || "Not available", role: localStorage.getItem("role") || "user" });
 const display = (value) => value === undefined || value === null || value === "" ? "Not available" : value;
+const errorText = (error, fallback) => error.response?.data?.message || error.response?.data?.detail || fallback;
 
 export default function Profile() {
   const role = localStorage.getItem("role") || "user";
@@ -49,8 +50,8 @@ export default function Profile() {
     if (role === "shop") return [...common, ["Shop name", "shop_name"], ["Shop location", "location"]];
     return common;
   }, [role]);
-  async function saveProfile(event) { event.preventDefault(); try { const response = await api.put("/profile/me", form); const next = response.data || form; setProfile(next); setForm(next); localStorage.setItem("user_name", next.user_name || next.name || "User"); window.dispatchEvent(new Event("cropverse-profile-updated")); setEditing(false); setMessage("Profile updated successfully."); } catch (error) { setMessage(error.response?.data?.detail || "Could not update profile. Please try again."); } }
-  async function changePassword(event) { event.preventDefault(); try { await api.put("/profile/change-password", password); setPassword({ current_password: "", new_password: "" }); setPasswordOpen(false); setMessage("Password changed successfully."); } catch (error) { setMessage(error.response?.data?.detail || "Could not change password."); } }
+  async function saveProfile(event) { event.preventDefault(); try { const response = await api.put("/profile/me", form); const next = response.data || form; setProfile(next); setForm(next); localStorage.setItem("user_name", next.user_name || next.name || "User"); window.dispatchEvent(new Event("cropverse-profile-updated")); setEditing(false); setMessage("Profile updated successfully."); } catch (error) { setMessage(errorText(error, "Could not update profile. Please try again.")); } }
+  async function changePassword(event) { event.preventDefault(); try { await api.put("/profile/change-password", password); setPassword({ current_password: "", new_password: "" }); setPasswordOpen(false); setMessage("Password changed successfully."); } catch (error) { setMessage(errorText(error, "Could not change password.")); } }
   const metadata = [["Role", role], ["Account created", profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "Not available"], ["Last login", profile.last_login ? new Date(profile.last_login).toLocaleString() : "Not available"]];
   if (loading) return <div className="rounded-3xl border border-white/10 bg-white/5 p-10 text-center">Loading profile...</div>;
   return <div className="text-white"><div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"><div><h1 className="text-3xl font-bold">Your Profile</h1><p className="mt-2 text-slate-400">Your Cropverse account and activity at a glance.</p></div><div className="flex flex-wrap gap-3"><button onClick={() => setEditing(true)} className="flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-medium hover:bg-emerald-500"><Pencil size={17}/>Edit profile</button><button onClick={() => setPasswordOpen(true)} className="flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 hover:bg-white/10"><KeyRound size={17}/>Change password</button></div></div>{message && <div className="mb-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-200">{message}</div>}<div className="grid gap-6 lg:grid-cols-3"><section className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl lg:col-span-2"><div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/20 text-3xl">🌾</div><h2 className="text-xl font-semibold">Account details</h2><div className="mt-5 grid gap-5 sm:grid-cols-2">{fields.map(([label, key]) => <div key={key}><p className="text-sm text-slate-400">{label}</p><p className="mt-1 break-words font-medium">{display(profile[key] ?? (key === "name" ? profile.user_name : undefined))}</p></div>)}</div></section><section className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl"><h2 className="text-xl font-semibold">Account status</h2><div className="mt-5 space-y-5">{metadata.map(([label, content]) => <div key={label}><p className="text-sm text-slate-400">{label}</p><p className="mt-1 capitalize">{content}</p></div>)}</div></section></div>{Object.keys(stats).length > 0 && <section className="mt-6"><h2 className="mb-4 text-xl font-semibold">Activity</h2><div className="grid gap-4 sm:grid-cols-3">{Object.entries(stats).map(([label, count]) => <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="text-sm text-slate-400">{label}</p><p className="mt-2 text-3xl font-bold text-emerald-400">{count}</p></div>)}</div></section>}{editing && <ProfileEditor fields={fields} form={form} setForm={setForm} onClose={() => setEditing(false)} onSubmit={saveProfile}/>} {passwordOpen && <PasswordDialog password={password} setPassword={setPassword} onClose={() => setPasswordOpen(false)} onSubmit={changePassword}/>}</div>;
@@ -316,7 +317,7 @@ function PasswordDialog({
                 ? "text"
                 : "password"
             }
-            minLength="6"
+            minLength="8"
             required
             placeholder="New password"
             value={password.new_password}

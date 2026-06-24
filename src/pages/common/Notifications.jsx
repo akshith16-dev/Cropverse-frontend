@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
+import useWebSocket from "../../hooks/useWebSocket";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -8,6 +9,18 @@ export default function Notifications() {
   useEffect(() => {
     loadNotifications();
   }, []);
+
+  const userId = localStorage.getItem("user_id") || (() => {
+    try {
+      const payload = localStorage.getItem("token")?.split(".")[1];
+      return payload ? JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/"))).sub : null;
+    } catch { return null; }
+  })();
+  const token = localStorage.getItem("token");
+  useWebSocket(userId && token ? `/ws/notifications/${userId}?token=${encodeURIComponent(token)}` : null, (event) => {
+    if (event.notification) setNotifications((items) => [event.notification, ...items.filter((item) => item.id !== event.notification.id)]);
+    if (event.event === "assignment.created") loadNotifications();
+  });
 
   async function loadNotifications() {
     try {
