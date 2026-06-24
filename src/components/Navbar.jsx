@@ -37,12 +37,43 @@ export default function Navbar() {
   const userId = getStoredUserId();
 
   useEffect(() => {
-    let active = true;
-    api.get("/notifications/").then((res) => {
-      if (active) setUnreadCount((res.data || []).filter((item) => !item.is_read).length);
-    }).catch(() => {});
-    return () => { active = false; };
-  }, []);
+  let active = true;
+
+  async function loadUnreadCount() {
+    try {
+      const res = await api.get("/notifications/");
+      if (active) {
+        setUnreadCount(
+          (res.data || []).filter(
+            (item) => !item.is_read
+          ).length
+        );
+      }
+    } catch {}
+  }
+
+  loadUnreadCount();
+
+  const handleRead = () => {
+    setUnreadCount((count) =>
+      Math.max(count - 1, 0)
+    );
+  };
+
+  window.addEventListener(
+    "notification-read",
+    handleRead
+  );
+
+  return () => {
+    active = false;
+
+    window.removeEventListener(
+      "notification-read",
+      handleRead
+    );
+  };
+}, []);
 
   useWebSocket(userId && token ? `/ws/notifications/${userId}?token=${encodeURIComponent(token)}` : null, (event) => {
     if (event.notification && !event.notification.is_read) {

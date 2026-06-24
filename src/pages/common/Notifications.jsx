@@ -38,12 +38,16 @@ export default function Notifications() {
       await api.put(`/notifications/${id}/read`);
 
       setNotifications((prev) =>
-        prev.map((item) =>
-          item.id === id
-            ? { ...item, is_read: true }
-            : item
-        )
-      );
+  prev.map((item) =>
+    item.id === id
+      ? { ...item, is_read: true }
+      : item
+  )
+);
+
+window.dispatchEvent(
+  new CustomEvent("notification-read")
+);
     } catch (err) {
       console.error(err);
     }
