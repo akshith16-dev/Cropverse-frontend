@@ -8,6 +8,7 @@ import {
   Package,
   ShoppingCart,
   ClipboardList,
+  Sparkles,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -48,6 +49,11 @@ const roleMenus = {
       icon: BarChart3,
       label: "Prices",
       path: "/admin/prices",
+    },
+    {
+      icon: Sparkles,
+      label: "AI Planning",
+      path: "/admin/ai-planning",
     },
     {
       icon: BarChart3,

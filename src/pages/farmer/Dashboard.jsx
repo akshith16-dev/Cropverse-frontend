@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../../api";
 import { useNavigate } from "react-router-dom";
+import RecommendationCard from "../../components/RecommendationCard";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [highDemand, setHighDemand] = useState([]);
+  const [recommendation, setRecommendation] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,12 +16,14 @@ export default function Dashboard() {
 
   async function loadAssignments() {
     try {
-      const [assignmentsResponse, demandResponse] = await Promise.all([
+      const [assignmentsResponse, demandResponse, recommendationResponse] = await Promise.all([
         api.get("/assignments/me"),
         api.get("/demand/insights/high-demand"),
+        api.get("/ai/recommendations/me/latest"),
       ]);
       setAssignments(assignmentsResponse.data || []);
       setHighDemand(demandResponse.data || []);
+      setRecommendation(recommendationResponse.data || null);
     } catch (err) {
       console.error(err);
     } finally {
@@ -134,6 +138,19 @@ export default function Dashboard() {
           <button onClick={() => navigate("/farmer/crops")} className="rounded-xl bg-emerald-600 px-5 py-3 font-medium hover:bg-emerald-500">View My Crops</button>
           <button onClick={() => navigate("/chatbot")} className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-3 font-medium text-emerald-300 hover:bg-emerald-500/20">Ask Cropverse AI</button>
         </div>
+
+        <section className="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <h2 className="text-xl font-semibold">Recommended Next Crop</h2>
+          <div className="mt-4">
+            {recommendation ? (
+              <RecommendationCard recommendation={recommendation} onSelect={() => navigate("/farmer/crops")} />
+            ) : (
+              <div className="rounded-2xl bg-slate-900/70 p-5 text-slate-400">
+                Your next AI crop recommendation will appear after admin planning or harvest.
+              </div>
+            )}
+          </div>
+        </section>
 
         <section className="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6"><h2 className="text-xl font-semibold">Recent activity</h2><div className="mt-4 space-y-3">{assignments.slice(0, 3).map((item) => <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-900/70 p-3"><span>🌱 {item.crop_name || "Crop assignment"}</span><span className="text-sm capitalize text-slate-400">{item.status || "pending"}</span></div>)}{!assignments.length && <p className="text-slate-400">New assignments and crop updates will appear here.</p>}</div></section>
 

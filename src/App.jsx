@@ -15,6 +15,7 @@ const Assign = lazy(() => import("./pages/admin/Assign.jsx"));
 const DemandManagement = lazy(() => import("./pages/admin/DemandManagement.jsx"));
 const Prices = lazy(() => import("./pages/admin/Prices.jsx"));
 const Analytics = lazy(() => import("./pages/admin/Analytics.jsx"));
+const AIPlanning = lazy(() => import("./pages/admin/AIPlanning.jsx"));
 
 const FarmerDashboard = lazy(() => import("./pages/farmer/Dashboard.jsx"));
 const Crops = lazy(() => import("./pages/farmer/Crops.jsx"));
@@ -58,6 +59,7 @@ function App() {
         <Route path="/admin/assign" element={<Assign />} />
         <Route path="/admin/demand" element={<DemandManagement />} />
         <Route path="/admin/prices" element={<Prices />} />
+        <Route path="/admin/ai-planning" element={<AIPlanning />} />
         <Route path="/admin/analytics" element={<Analytics />} />
       </Route>
 

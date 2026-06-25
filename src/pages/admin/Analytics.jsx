@@ -69,6 +69,7 @@ export default function Analytics() {
   const cropDistribution = data?.crop_distribution || [];
   const farmerGrowth = data?.farmer_growth || [];
   const highDemand = data?.high_demand || [];
+  const aiInsights = data?.ai_insights || {};
 
   return (
     <div>
@@ -137,6 +138,40 @@ export default function Analytics() {
           </ResponsiveContainer>
         </ChartBox>
       </div>
+
+      <section className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-5">
+        <h2 className="text-xl font-semibold">AI Insights</h2>
+        <div className="mt-4 grid gap-4 lg:grid-cols-4">
+          <div className="rounded-2xl bg-slate-900/70 p-4">
+            <p className="mb-3 font-medium text-emerald-300">Most recommended crops</p>
+            {(aiInsights.most_recommended_crops || []).slice(0, 4).map((item) => (
+              <p key={item.crop_name} className="border-b border-white/10 py-2 text-sm text-slate-300">{item.crop_name} - {item.count}</p>
+            ))}
+            {!aiInsights.most_recommended_crops?.length && <p className="text-sm text-slate-400">No recommendations yet.</p>}
+          </div>
+          <div className="rounded-2xl bg-slate-900/70 p-4">
+            <p className="mb-3 font-medium text-orange-300">Highest demand crops</p>
+            {(aiInsights.highest_demand_crops || []).slice(0, 4).map((item) => (
+              <p key={`${item.crop_name}-${item.status}`} className="border-b border-white/10 py-2 text-sm text-slate-300">{item.crop_name} - {item.quantity_kg} kg</p>
+            ))}
+            {!aiInsights.highest_demand_crops?.length && <p className="text-sm text-slate-400">No demand signals yet.</p>}
+          </div>
+          <div className="rounded-2xl bg-slate-900/70 p-4">
+            <p className="mb-3 font-medium text-amber-300">Most profitable crops</p>
+            {(aiInsights.most_profitable_crops || []).slice(0, 4).map((item) => (
+              <p key={item.crop_name} className="border-b border-white/10 py-2 text-sm text-slate-300">{item.crop_name} - ₹{Math.round(item.expected_profit || 0).toLocaleString("en-IN")}</p>
+            ))}
+            {!aiInsights.most_profitable_crops?.length && <p className="text-sm text-slate-400">No profit signals yet.</p>}
+          </div>
+          <div className="rounded-2xl bg-slate-900/70 p-4">
+            <p className="mb-3 font-medium text-sky-300">Crop rotation trends</p>
+            {(aiInsights.crop_rotation_trends || []).slice(0, 4).map((item) => (
+              <p key={item.crop_name} className="border-b border-white/10 py-2 text-sm text-slate-300">{item.crop_name} - {item.count}</p>
+            ))}
+            {!aiInsights.crop_rotation_trends?.length && <p className="text-sm text-slate-400">No rotation trends yet.</p>}
+          </div>
+        </div>
+      </section>
 
       <div className="mt-6">
         <FarmerMap />
